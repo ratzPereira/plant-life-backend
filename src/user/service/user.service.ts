@@ -4,13 +4,15 @@ import { User } from '../models/User';
 import { Model } from 'mongoose';
 import { CreateUserDTO } from '../dto/CreateUserDTO';
 import { hash } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
 import { UserResponseInterface } from '../types/user.response.interface';
-import * as process from 'process';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<any>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<any>,
+    private readonly authService: AuthService,
+  ) {}
 
   async createUser(createUserDto: CreateUserDTO): Promise<User> {
     const { email, username } = createUserDto;
@@ -31,17 +33,8 @@ export class UserService {
     return savedUser.toObject({ getters: true });
   }
 
-  buildUserResponse(user: User): UserResponseInterface {
-    return { ...user, token: this.generateJwt(user) };
-  }
-  generateJwt(user: User): string {
-    return sign(
-      {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
-      process.env.JWT_SECRET,
-    );
+  async buildUserResponse(user: User): Promise<UserResponseInterface> {
+    const token = await this.authService.generateToken(user);
+    return { ...user, token };
   }
 }
