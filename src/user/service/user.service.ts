@@ -28,9 +28,11 @@ export class UserService {
     const user = new this.userModel(createUserDto);
     user.password = await hash(user.password, 10);
 
-    const { password, ...savedUser } = await user.save();
+    const { password, ...savedUser } = await user
+      .save()
+      .then((doc) => doc.toObject());
 
-    return savedUser.toObject({ getters: true });
+    return savedUser;
   }
 
   async buildUserResponse(user: User): Promise<UserResponseInterface> {
