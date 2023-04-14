@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, NotFoundException } from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import { AuthService } from '../src/user/service/auth.service';
@@ -140,6 +140,44 @@ describe('UserController (e2e)', () => {
         .expect(401);
 
       expect(response.body.message).toBe('Invalid email or password');
+    });
+  });
+  describe('findUser', () => {
+    it('should throw NotFoundException if id is not valid', async () => {
+      const id = 'invalid-id';
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(null);
+
+      await expect(userService.findUser(id)).rejects.toThrowError(
+        new NotFoundException('User not found'),
+      );
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      const id = '60921a4a6de4f2154b7842e3';
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(null);
+
+      await expect(userService.findUser(id)).rejects.toThrowError(
+        new NotFoundException('User not found'),
+      );
+    });
+
+    it('should return the user without the password field', async () => {
+      const existingUser = new userModel({
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'ratz',
+        password: 'testpassword',
+      });
+      await existingUser.save();
+
+      const user = await userModel.findOne({ email: 'test@example.com' });
+
+      const result = await userService.findUser(user._id);
+      expect(result).toMatchObject({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      });
     });
   });
 });

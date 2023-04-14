@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../models/User';
-import { Model, Schema, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { CreateUserDTO } from '../dto/CreateUserDTO';
 import { compare, hash } from 'bcrypt';
 import { UserResponseInterface } from '../types/user.response.interface';
@@ -61,13 +61,21 @@ export class UserService {
     return getUser;
   }
   async findUser(id: string): Promise<User> {
-    if (!id || !ObjectId.isValid(id)) {
+    if (!id) {
       throw new NotFoundException('User not found');
     }
-    const user = await this.userModel.findById(id).exec();
+
+    let user;
+    try {
+      user = await this.userModel.findById(id).exec();
+    } catch (error) {
+      throw new NotFoundException('User not found');
+    }
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
     const getUser = user.toObject();
     delete getUser.password;
     return getUser;
