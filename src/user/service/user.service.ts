@@ -39,7 +39,6 @@ export class UserService {
     delete userObject.password;
     return userObject;
   }
-
   async login(loginRequestDTO: LoginRequestDTO): Promise<User> {
     const { email, password } = loginRequestDTO;
 
