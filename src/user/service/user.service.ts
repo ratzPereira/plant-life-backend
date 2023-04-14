@@ -1,16 +1,18 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../models/User';
-import { Model } from 'mongoose';
+import { Model, Schema, Types } from 'mongoose';
 import { CreateUserDTO } from '../dto/CreateUserDTO';
 import { compare, hash } from 'bcrypt';
 import { UserResponseInterface } from '../types/user.response.interface';
 import { AuthService } from './auth.service';
 import { LoginRequestDTO } from '../dto/login.resquestDTO';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UserService {
@@ -54,6 +56,18 @@ export class UserService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
+    const getUser = user.toObject();
+    delete getUser.password;
+    return getUser;
+  }
+  async findUser(id: string): Promise<User> {
+    if (!id || !ObjectId.isValid(id)) {
+      throw new NotFoundException('User not found');
+    }
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     const getUser = user.toObject();
     delete getUser.password;
     return getUser;
