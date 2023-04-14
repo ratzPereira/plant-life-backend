@@ -7,7 +7,6 @@ import { PostService } from './service/post.service';
 import { PlantService } from './service/plant.service';
 import { UserModule } from '../user/user.module';
 import { PlantController } from './controller/plant.controller';
-import { PlantSpeciesSchema } from './model/PlantSpecies';
 import { PlantTypeSchema } from './model/PlantType';
 
 @Module({
@@ -17,7 +16,6 @@ import { PlantTypeSchema } from './model/PlantType';
       { name: Post.name, schema: PostSchema },
       { name: 'Plant', schema: PlantSchema },
       { name: 'PlantType', schema: PlantTypeSchema },
-      { name: 'PlantSpecies', schema: PlantSpeciesSchema },
     ]),
   ],
   controllers: [PostController, PlantController],

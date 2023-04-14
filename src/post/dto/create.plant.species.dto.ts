@@ -1,4 +1,4 @@
 export class CreatePlantSpeciesDto {
-  name: string;
-  type: string;
+  plantType: string;
+  species: string | string[];
 }

@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { PlantService } from '../service/plant.service';
 import { PlantType } from '../model/PlantType';
 import { CreatePlantTypeDto } from '../dto/create.plant.type.dto';
 import { CreatePlantSpeciesDto } from '../dto/create.plant.species.dto';
-import { PlantSpecies } from '../model/PlantSpecies';
 
 @Controller('/api/plants')
 export class PlantController {
@@ -22,12 +21,14 @@ export class PlantController {
   }
 
   @Post('/species')
-  async createPlantSpecies(@Body() plantSpeciesDto: CreatePlantSpeciesDto) {
-    return await this.plantService.createPlantSpecies(plantSpeciesDto);
+  async createPlantSpecies(
+    @Body() createPlantSpeciesDto: CreatePlantSpeciesDto,
+  ) {
+    return await this.plantService.addSpeciesToPlantType(createPlantSpeciesDto);
   }
 
-  @Get('/species')
-  async getAllPlantSpecies(): Promise<PlantSpecies[]> {
-    return this.plantService.getAllPlantSpecies();
+  @Get('/species/:plantType')
+  async getPlantSpecies(@Param('plantType') plantType: string) {
+    return await this.plantService.getPlantSpecies(plantType);
   }
 }
