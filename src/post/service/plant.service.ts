@@ -86,14 +86,13 @@ export class PlantService {
 
   async getPlantSpecies(plantType: string): Promise<string[]> {
     const plantTypeObj = await this.plantTypeModel
-      .findById(plantType)
-      .populate('species')
+      .findOne({ name: plantType })
       .exec();
 
     if (!plantTypeObj) {
-      throw new Error(`Plant type with ID ${plantType} not found.`);
+      throw new Error(`Plant type with name '${plantType}' not found.`);
     }
 
-    return plantTypeObj.species.map((species) => species);
+    return plantTypeObj.species;
   }
 }
