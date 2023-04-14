@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from './model/Post';
 import { PlantSchema } from './model/Plant';
+import { PostController } from './controller/post.controller';
+import { PostService } from './service/post.service';
 
 @Module({
   imports: [
@@ -10,7 +12,7 @@ import { PlantSchema } from './model/Plant';
       { name: 'Plant', schema: PlantSchema },
     ]),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [PostController],
+  providers: [PostService],
 })
 export class PostModule {}

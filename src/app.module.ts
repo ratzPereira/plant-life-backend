@@ -12,12 +12,14 @@ import { UserModule } from './user/user.module';
 import { AuthMiddleware } from './user/middleware/auth.middleware';
 import { AuthService } from './user/service/auth.service';
 import { UserService } from './user/service/user.service';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
     UserModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, UserService],

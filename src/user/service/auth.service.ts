@@ -20,7 +20,6 @@ export class AuthService {
   }
   async validateToken(token: string) {
     const payload = verify(token, process.env.JWT_SECRET);
-    console.log(payload);
     return payload.id;
   }
 }
