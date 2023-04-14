@@ -6,7 +6,7 @@ export type PlantDocument = Plant & Document;
 @Schema()
 export class Plant {
   @Prop({ required: true })
-  nome: string;
+  name: string;
 
   @Prop({ required: true })
   species: string;
