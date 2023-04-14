@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { CreateUserDTO } from '../dto/CreateUserDTO';
 import { UserResponseInterface } from '../types/user.response.interface';
 import { LoginRequestDTO } from '../dto/login.resquestDTO';
+import { UserAuthGuard } from '../guards/auth.guard';
 
 @Controller('/api/auth')
 export class UserController {
@@ -25,6 +26,7 @@ export class UserController {
   }
 
   @Get('/user/:id')
+  @UseGuards(UserAuthGuard)
   async getUser(@Param('id') id: string) {
     return this.userService.findUser(id);
   }

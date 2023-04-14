@@ -12,7 +12,6 @@ import { compare, hash } from 'bcrypt';
 import { UserResponseInterface } from '../types/user.response.interface';
 import { AuthService } from './auth.service';
 import { LoginRequestDTO } from '../dto/login.resquestDTO';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UserService {

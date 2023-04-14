@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../models/User';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
+import * as process from 'process';
 
 @Injectable()
 export class AuthService {
@@ -10,11 +11,16 @@ export class AuthService {
   async generateToken(user: User): Promise<string> {
     return sign(
       {
-        id: user.id,
+        id: user._id.toString(),
         username: user.username,
         email: user.email,
       },
       process.env.JWT_SECRET,
     );
+  }
+  async validateToken(token: string) {
+    const payload = verify(token, process.env.JWT_SECRET);
+    console.log(payload);
+    return payload.id;
   }
 }
