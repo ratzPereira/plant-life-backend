@@ -13,8 +13,6 @@ export class PostController {
     @Body() createPostDto: CreatePostDto,
     @UserDecorator() currentUser: User,
   ) {
-    console.log('olha o user');
-    console.log(currentUser);
-    return this.postService.createPost(createPostDto);
+    return this.postService.createPost(createPostDto, currentUser);
   }
 }

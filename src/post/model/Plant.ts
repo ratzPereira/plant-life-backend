@@ -12,6 +12,9 @@ export class Plant {
   species: string;
 
   @Prop({ required: true })
+  type: string;
+
+  @Prop({ required: true })
   age: number;
 
   @Prop({ required: true })
