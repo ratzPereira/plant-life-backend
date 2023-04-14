@@ -94,4 +94,52 @@ describe('UserController (e2e)', () => {
       expect(response.body.message).toBe('Email or username already exists');
     });
   });
+
+  describe('/api/auth/login (POST)', () => {
+    it('should login with valid credentials', async () => {
+      // Crie um usuário de teste para efetuar o login
+      const createUserDto: CreateUserDTO = {
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'ratz',
+        password: 'testpassword',
+      };
+      await userService.createUser(createUserDto);
+
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'testpassword',
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send(loginDto)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('token');
+    });
+
+    it('should throw UnauthorizedException with invalid credentials', async () => {
+      // Crie um usuário de teste para efetuar o login
+      const createUserDto: CreateUserDTO = {
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'ratz',
+        password: 'testpassword',
+      };
+      await userService.createUser(createUserDto);
+
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'wrongpassword',
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send(loginDto)
+        .expect(401);
+
+      expect(response.body.message).toBe('Invalid email or password');
+    });
+  });
 });
