@@ -83,4 +83,10 @@ export class UserService {
     const token = await this.authService.generateToken(user);
     return { ...user, token };
   }
+  async incrementUserPostsCount(userId: string): Promise<void> {
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $inc: { postsCount: 1 } },
+    );
+  }
 }

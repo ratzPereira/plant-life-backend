@@ -9,7 +9,7 @@ export interface UserResponseInterface {
   location: string;
   postsCount: number;
   followersCount: number;
-  following: string[];
+  friends: string[];
   createdAt: Date;
   updatedAt: Date;
   token: string;

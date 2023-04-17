@@ -11,6 +11,7 @@ import { User } from '../../user/models/User';
 import { PlantService } from './plant.service';
 import { PlantType } from '../model/PlantType';
 import { PlantTypeService } from './plant.type.service';
+import { UserService } from '../../user/service/user.service';
 
 @Injectable()
 export class PostService {
@@ -19,6 +20,7 @@ export class PostService {
     @InjectModel(PlantType.name)
     private readonly plantTypeModel: Model<PlantType>,
     private readonly plantService: PlantService,
+    private userService: UserService,
     private readonly plantTypeService: PlantTypeService,
   ) {}
 
@@ -50,7 +52,7 @@ export class PostService {
         userId: currentUser._id,
       });
     }
-
+    await this.userService.incrementUserPostsCount(currentUser._id);
     return post.save();
   }
 

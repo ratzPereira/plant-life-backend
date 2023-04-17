@@ -39,7 +39,7 @@ export class User extends Document {
   followersCount: number;
 
   @Prop({ default: [] })
-  following: string[];
+  friends: string[];
 
   @Prop({ default: Date.now })
   createdAt: Date;
