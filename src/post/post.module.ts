@@ -8,6 +8,7 @@ import { PlantService } from './service/plant.service';
 import { UserModule } from '../user/user.module';
 import { PlantController } from './controller/plant.controller';
 import { PlantTypeSchema } from './model/PlantType';
+import { PlantTypeService } from './service/plant.type.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { PlantTypeSchema } from './model/PlantType';
     ]),
   ],
   controllers: [PostController, PlantController],
-  providers: [PostService, PlantService],
+  providers: [PostService, PlantService, PlantTypeService],
 })
 export class PostModule {}
