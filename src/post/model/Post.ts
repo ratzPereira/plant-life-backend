@@ -2,8 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Plant } from './Plant';
 import { UserType } from '../types/UserType';
-
-export type PostDocument = Post & Document;
+import { User } from '../../user/models/User';
 
 @Schema()
 export class Post {
@@ -22,8 +21,8 @@ export class Post {
   @Prop({ type: Date, default: Date.now })
   updatedAt: Date;
 
-  @Prop({ type: UserType, required: true, select: false })
-  user: UserType;
+  @Prop({ type: User })
+  user: User;
 
   @Prop({
     type: Plant,
@@ -31,4 +30,5 @@ export class Post {
   plant?: Plant;
 }
 
+export type PostDocument = Post & Document;
 export const PostSchema = SchemaFactory.createForClass(Post);

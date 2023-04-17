@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post } from '../model/Post';
+import { Post, PostDocument } from '../model/Post';
 import { Model } from 'mongoose';
 import { CreatePostDto } from '../dto/create.post.dto';
 import { User } from '../../user/models/User';
@@ -52,5 +52,13 @@ export class PostService {
     }
 
     return post.save();
+  }
+
+  async findAllPosts(): Promise<PostDocument[]> {
+    return this.postModel.find().populate('user').populate('plant').exec();
+  }
+
+  async getPostsByUserId(userId: string): Promise<PostDocument[]> {
+    return await this.postModel.find({ 'user._id': userId }).exec();
   }
 }
