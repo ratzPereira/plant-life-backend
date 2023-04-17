@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
 import { CreatePostDto } from '../dto/create.post.dto';
 import { PostService } from '../service/post.service';
 import { UserDecorator } from '../../user/decorator/user.decorator';
@@ -10,9 +10,9 @@ export class PostController {
 
   @Post()
   async createPost(
-    @Body() createPostDto: CreatePostDto,
+    @Body(new ValidationPipe()) createPostDto: CreatePostDto,
     @UserDecorator() currentUser: User,
   ) {
-    return this.postService.createPost(createPostDto, currentUser);
+    return await this.postService.createPost(createPostDto, currentUser);
   }
 }

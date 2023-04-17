@@ -1,5 +1,5 @@
-import { IsNotEmpty } from 'class-validator';
-import { Plant } from '../model/Plant';
+import { IsNotEmpty, IsOptional } from 'class-validator';
+import { PlantPostDto } from './plant.post.dto';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -8,6 +8,8 @@ export class CreatePostDto {
   @IsNotEmpty()
   content: string;
 
-  @IsNotEmpty()
-  plant: Plant;
+  image: string[] | string;
+
+  @IsOptional()
+  plant?: PlantPostDto;
 }

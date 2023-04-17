@@ -5,26 +5,23 @@ export type PlantDocument = Plant & Document;
 
 @Schema()
 export class Plant {
-  @Prop({ required: true })
+  @Prop()
   name: string;
 
-  @Prop({ required: true })
+  @Prop()
   species: string;
 
-  @Prop({ required: true })
-  type: string;
-
-  @Prop({ required: true })
+  @Prop()
   age: number;
 
-  @Prop({ required: true })
+  @Prop()
   location: string;
 
-  @Prop({ required: true })
-  image: string[];
-
-  @Prop({ required: true })
+  @Prop()
   userId: string;
+
+  @Prop()
+  plantType: string; // novo campo para o tipo de planta
 }
 
 export const PlantSchema = SchemaFactory.createForClass(Plant);
