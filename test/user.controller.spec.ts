@@ -7,10 +7,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as mongoose from 'mongoose';
-import { Model, Query } from 'mongoose';
+import { Model, Schema, Types, ObjectId } from 'mongoose';
 import { AuthService } from '../src/user/service/auth.service';
 import { UserService } from '../src/user/service/user.service';
-import { User } from '../src/user/models/User';
+import { User, UserSchema } from '../src/user/models/User';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { CreateUserDto } from '../src/user/dto/CreateUser.dto';
 
@@ -292,6 +292,94 @@ describe('UserController (e2e)', () => {
           username: 'newusername',
         }),
       ).rejects.toThrowError(new NotFoundException('User not found'));
+    });
+  });
+  describe('when adding a friend', () => {
+    it('should add the friend successfully', async () => {
+      const currentUser = new userModel({
+        _id: 'user-id-123',
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'ratz',
+        password: 'testpassword',
+        friends: ['friend-id-123'],
+      });
+
+      const user = new userModel(currentUser);
+
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(user);
+      jest.spyOn(user, 'save').mockResolvedValueOnce(user);
+
+      const result = await userService.addOrRemoveFriend(
+        currentUser.friends[1],
+        currentUser,
+      );
+
+      expect(result).toEqual(user);
+      expect(user.friends).toContain(currentUser.friends[1]);
+      expect(user.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw a BadRequestException if trying to add themselves as a friend', async () => {
+      const friendId = '643ebd8e82ea452664fa5acf';
+      const currentUser = new userModel({
+        _id: 'oi',
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'ratz',
+        password: 'testpassword',
+        friends: [friendId],
+      });
+
+      await expect(
+        userService.addOrRemoveFriend(currentUser._id.toString(), currentUser),
+      ).rejects.toThrowError(
+        new BadRequestException('Cannot add yourself as a friend'),
+      );
+    });
+
+    it('should throw a NotFoundException if user is not found', async () => {
+      const friendId = 'friend-id-123';
+      const currentUser = new userModel({
+        _id: 'user-id-123',
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'ratz',
+        password: 'testpassword',
+        friends: [friendId],
+      });
+
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(null);
+
+      await expect(
+        userService.addOrRemoveFriend(friendId, currentUser),
+      ).rejects.toThrowError(
+        new NotFoundException(`User with id ${currentUser._id} not found`),
+      );
+    });
+  });
+
+  describe('when removing a friend', () => {
+    it('should remove the friend successfully', async () => {
+      const friendId = 'friend-id-123';
+      const currentUser = new userModel({
+        _id: 'user-id-123',
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'ratz',
+        password: 'testpassword',
+        friends: [friendId],
+      });
+      const user = new userModel(currentUser);
+
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(user);
+      jest.spyOn(user, 'save').mockResolvedValueOnce(user);
+
+      const result = await userService.addOrRemoveFriend(friendId, currentUser);
+
+      expect(result).toEqual(user);
+      expect(user.friends).not.toContain(friendId);
+      expect(user.save).toHaveBeenCalledTimes(1);
     });
   });
 });
