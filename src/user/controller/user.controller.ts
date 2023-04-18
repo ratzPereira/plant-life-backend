@@ -78,6 +78,11 @@ export class UserController {
     );
   }
 
+  @Get('/user/:id/friends')
+  async getUserFriends(@Param('id') id: string): Promise<User[]> {
+    return await this.userService.getUserFriends(id);
+  }
+
   @Delete('/user/:id')
   async deleteUser(
     @UserDecorator() currentUser: User,

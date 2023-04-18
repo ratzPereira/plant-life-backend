@@ -87,15 +87,15 @@ export class UserService {
     if (currentUser._id.toString() === friendId) {
       throw new BadRequestException('Cannot add yourself as a friend');
     }
-    const user = await this.userModel.findById(friendId);
+    const user = await this.userModel.findById(currentUser._id);
     if (!user) {
-      throw new NotFoundException(`User with id ${friendId} not found`);
+      throw new NotFoundException(`User with id ${currentUser._id} not found`);
     }
-    const index = user.friends.indexOf(currentUser._id);
+    const index = user.friends.indexOf(friendId);
     if (index >= 0) {
       user.friends.splice(index, 1);
     } else {
-      user.friends.push(currentUser._id);
+      user.friends.push(friendId);
     }
     return user.save();
   }
@@ -167,6 +167,18 @@ export class UserService {
         updatedAt: new Date(),
       },
     );
+  }
+
+  async getUserFriends(id: string): Promise<User[]> {
+    const user = await this.userModel.findById(id).populate('friends');
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    const friends = user.friends.map((friendId: string) =>
+      this.userModel.findById(friendId),
+    );
+    return Promise.all(friends);
   }
 
   async deleteUser(id: string): Promise<void> {
