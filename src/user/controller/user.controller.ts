@@ -3,17 +3,19 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { CreateUserDTO } from '../dto/CreateUserDTO';
+import { CreateUserDto } from '../dto/CreateUser.dto';
 import { UserResponseInterface } from '../types/user.response.interface';
-import { LoginRequestDTO } from '../dto/login.resquestDTO';
+import { LoginRequestDTO } from '../dto/login.resquest.dto';
 import { UserAuthGuard } from '../guards/auth.guard';
 import { UserDecorator } from '../decorator/user.decorator';
 import { User } from '../models/User';
+import { UpdateUserProfileDTO } from '../dto/update.profile.dto';
 
 @Controller('/api')
 export class UserController {
@@ -21,7 +23,7 @@ export class UserController {
 
   @Post('/register')
   async createUser(
-    @Body(new ValidationPipe()) createUserDTO: CreateUserDTO,
+    @Body(new ValidationPipe()) createUserDTO: CreateUserDto,
   ): Promise<UserResponseInterface> {
     const user = await this.userService.createUser(createUserDTO);
     return this.userService.buildUserResponse(user);
@@ -47,5 +49,17 @@ export class UserController {
     @Param('id') friendId: string,
   ): Promise<User> {
     return await this.userService.addOrRemoveFriend(friendId, currentUser);
+  }
+
+  @Patch('user/profile')
+  @UseGuards(UserAuthGuard)
+  async updateProfile(
+    @UserDecorator() currentUser: User,
+    @Body(new ValidationPipe()) updateProfileDto: UpdateUserProfileDTO,
+  ): Promise<User> {
+    return await this.userService.updateProfile(
+      currentUser._id,
+      updateProfileDto,
+    );
   }
 }

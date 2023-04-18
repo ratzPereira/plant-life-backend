@@ -8,11 +8,12 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../models/User';
 import { Model } from 'mongoose';
-import { CreateUserDTO } from '../dto/CreateUserDTO';
 import { compare, hash } from 'bcrypt';
 import { UserResponseInterface } from '../types/user.response.interface';
 import { AuthService } from './auth.service';
-import { LoginRequestDTO } from '../dto/login.resquestDTO';
+import { CreateUserDto } from '../dto/CreateUser.dto';
+import { LoginRequestDTO } from '../dto/login.resquest.dto';
+import { UpdateUserProfileDTO } from '../dto/update.profile.dto';
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,7 @@ export class UserService {
     private readonly authService: AuthService,
   ) {}
 
-  async createUser(createUserDto: CreateUserDTO): Promise<User> {
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { email, username } = createUserDto;
 
     const userExists = await this.userModel.exists({
@@ -106,5 +107,36 @@ export class UserService {
       { _id: userId },
       { $inc: { postsCount: 1 } },
     );
+  }
+
+  async updateProfile(
+    userId: string,
+    updateProfileDto: UpdateUserProfileDTO,
+  ): Promise<User> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const { name, username, bio, location, image } = updateProfileDto;
+
+    if (name) {
+      user.name = name;
+    }
+    if (username) {
+      user.username = username;
+    }
+    if (bio) {
+      user.bio = bio;
+    }
+    if (location) {
+      user.location = location;
+    }
+    if (image) {
+      user.image = image;
+    }
+
+    user.updatedAt = new Date();
+    return user.save();
   }
 }

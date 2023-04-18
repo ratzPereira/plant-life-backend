@@ -8,7 +8,7 @@ import { AuthService } from '../src/user/service/auth.service';
 import { UserService } from '../src/user/service/user.service';
 import { User } from '../src/user/models/User';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { CreateUserDTO } from '../src/user/dto/CreateUserDTO';
+import { CreateUserDto } from '../src/user/dto/CreateUser.dto';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -46,7 +46,7 @@ describe('UserController (e2e)', () => {
 
   describe('/api/auth/register (POST)', () => {
     it('should register a new user', async () => {
-      const createUserDto: CreateUserDTO = {
+      const createUserDto: CreateUserDto = {
         email: 'test@example.com',
         username: 'testuser',
         name: 'ratz',
@@ -79,7 +79,7 @@ describe('UserController (e2e)', () => {
       });
       await existingUser.save();
 
-      const createUserDto: CreateUserDTO = {
+      const createUserDto: CreateUserDto = {
         email: 'existing@example.com',
         name: 'ratz',
         username: 'existinguser',
@@ -98,7 +98,7 @@ describe('UserController (e2e)', () => {
   describe('/api/auth/login (POST)', () => {
     it('should login with valid credentials', async () => {
       // Crie um usuário de teste para efetuar o login
-      const createUserDto: CreateUserDTO = {
+      const createUserDto: CreateUserDto = {
         email: 'test@example.com',
         username: 'testuser',
         name: 'ratz',
@@ -121,7 +121,7 @@ describe('UserController (e2e)', () => {
 
     it('should throw UnauthorizedException with invalid credentials', async () => {
       // Crie um usuário de teste para efetuar o login
-      const createUserDto: CreateUserDTO = {
+      const createUserDto: CreateUserDto = {
         email: 'test@example.com',
         username: 'testuser',
         name: 'ratz',
