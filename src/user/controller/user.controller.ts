@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
+  UnauthorizedException,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -74,5 +76,18 @@ export class UserController {
       changePasswordDTO.oldPassword,
       changePasswordDTO.newPassword,
     );
+  }
+
+  @Delete('/user/:id')
+  async deleteUser(
+    @UserDecorator() currentUser: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    if (currentUser._id.toString() !== id) {
+      throw new UnauthorizedException(
+        'You are not authorized to perform this action',
+      );
+    }
+    await this.userService.deleteUser(id);
   }
 }
