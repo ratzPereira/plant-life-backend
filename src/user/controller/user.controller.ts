@@ -16,6 +16,7 @@ import { UserAuthGuard } from '../guards/auth.guard';
 import { UserDecorator } from '../decorator/user.decorator';
 import { User } from '../models/User';
 import { UpdateUserProfileDTO } from '../dto/update.profile.dto';
+import { ChangePasswordDTO } from '../dto/change.password.dto';
 
 @Controller('/api')
 export class UserController {
@@ -60,6 +61,18 @@ export class UserController {
     return await this.userService.updateProfile(
       currentUser._id,
       updateProfileDto,
+    );
+  }
+
+  @Patch('/user/password')
+  async changePassword(
+    @Body() changePasswordDTO: ChangePasswordDTO,
+    @UserDecorator() currentUser: User,
+  ): Promise<void> {
+    await this.userService.changePassword(
+      currentUser._id,
+      changePasswordDTO.oldPassword,
+      changePasswordDTO.newPassword,
     );
   }
 }

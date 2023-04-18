@@ -41,10 +41,11 @@ export class UserService {
     delete userObject.password;
     return userObject;
   }
+
   async login(loginRequestDTO: LoginRequestDTO): Promise<User> {
     const { email, password } = loginRequestDTO;
 
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email }).select('+password');
 
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
@@ -60,6 +61,7 @@ export class UserService {
     delete getUser.password;
     return getUser;
   }
+
   async findUser(id: string): Promise<User> {
     if (!id) {
       throw new NotFoundException('User not found');
@@ -138,5 +140,32 @@ export class UserService {
 
     user.updatedAt = new Date();
     return user.save();
+  }
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.userModel.findById(userId).select('+password');
+
+    if (!user) {
+      throw new NotFoundException(`User with ID "${userId}" not found.`);
+    }
+
+    const isPasswordValid = await compare(oldPassword, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid old password.');
+    }
+
+    const newHashedPassword = await hash(newPassword, 10);
+
+    await this.userModel.updateOne(
+      { _id: userId },
+      {
+        password: newHashedPassword,
+        updatedAt: new Date(),
+      },
+    );
   }
 }
