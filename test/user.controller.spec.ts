@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as mongoose from 'mongoose';
-import { Model } from 'mongoose';
+import { Model, Query } from 'mongoose';
 import { AuthService } from '../src/user/service/auth.service';
 import { UserService } from '../src/user/service/user.service';
 import { User } from '../src/user/models/User';
@@ -247,6 +247,51 @@ describe('UserController (e2e)', () => {
       await expect(userService.deleteUser(id)).rejects.toThrowError(
         new BadRequestException('Invalid user ID'),
       );
+    });
+  });
+  describe('updateProfile', () => {
+    it('should update user profile', async () => {
+      const user = new userModel({
+        _id: 'user-id-123',
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'testname',
+        bio: 'testbio',
+        location: 'testlocation',
+        image: 'testimage',
+      });
+
+      const updateProfileDto = {
+        name: 'newname',
+        username: 'newusername',
+        bio: 'newbio',
+        location: 'newlocation',
+        image: 'newimage',
+      };
+
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(user);
+      jest.spyOn(user, 'save').mockResolvedValueOnce(user);
+
+      const result = await userService.updateProfile(user.id, updateProfileDto);
+
+      expect(result.name).toBe(updateProfileDto.name);
+      expect(result.username).toBe(updateProfileDto.username);
+      expect(result.bio).toBe(updateProfileDto.bio);
+      expect(result.location).toBe(updateProfileDto.location);
+      expect(result.image).toBe(updateProfileDto.image);
+      expect(result.updatedAt).toBeInstanceOf(Date);
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      const id = '60921a4a6de4f2154b7842e3';
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(null);
+
+      await expect(
+        userService.updateProfile(id, {
+          name: 'newname',
+          username: 'newusername',
+        }),
+      ).rejects.toThrowError(new NotFoundException('User not found'));
     });
   });
 });
