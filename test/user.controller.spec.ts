@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
-import { INestApplication, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  INestApplication,
+  NotFoundException,
+} from '@nestjs/common';
 import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import { AuthService } from '../src/user/service/auth.service';
@@ -54,7 +58,7 @@ describe('UserController (e2e)', () => {
       };
 
       const response = await request(app.getHttpServer())
-        .post('/api/auth/register')
+        .post('/api/register')
         .send(createUserDto)
         .expect(201);
 
@@ -87,7 +91,7 @@ describe('UserController (e2e)', () => {
       };
 
       const response = await request(app.getHttpServer())
-        .post('/api/auth/register')
+        .post('/api/register')
         .send(createUserDto)
         .expect(409);
 
@@ -112,7 +116,7 @@ describe('UserController (e2e)', () => {
       };
 
       const response = await request(app.getHttpServer())
-        .post('/api/auth/login')
+        .post('/api/login')
         .send(loginDto)
         .expect(201);
 
@@ -135,7 +139,7 @@ describe('UserController (e2e)', () => {
       };
 
       const response = await request(app.getHttpServer())
-        .post('/api/auth/login')
+        .post('/api/login')
         .send(loginDto)
         .expect(401);
 
@@ -178,6 +182,71 @@ describe('UserController (e2e)', () => {
         name: user.name,
         email: user.email,
       });
+    });
+  });
+
+  describe('findUser', () => {
+    it('should find a user by ID', async () => {
+      const existingUser = new userModel({
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'John Doe',
+        password: 'testpassword',
+      });
+      await existingUser.save();
+
+      const result = await userService.findUser(existingUser._id);
+
+      expect(result).toHaveProperty('_id', existingUser._id);
+      expect(result).toHaveProperty('email', existingUser.email);
+      expect(result).toHaveProperty('username', existingUser.username);
+      expect(result).toHaveProperty('name', existingUser.name);
+      expect(result).not.toHaveProperty('password');
+    });
+    it('should throw a NotFoundException when user is not found', async () => {
+      const id = '60921a4a6de4f2154b7842e3';
+
+      jest.spyOn(userModel, 'findById').mockResolvedValueOnce(null);
+
+      await expect(userService.findUser(id)).rejects.toThrowError(
+        new NotFoundException('User not found'),
+      );
+    });
+  });
+  describe('deleteUser', () => {
+    it('should delete a user by ID', async () => {
+      const existingUser = new userModel({
+        email: 'test@example.com',
+        username: 'testuser',
+        name: 'John Doe',
+        password: 'testpassword',
+      });
+      await existingUser.save();
+
+      const user = await userModel.findOne({ email: 'test@example.com' });
+
+      await userService.deleteUser(user._id);
+      const userAfterDelete = await userModel.findOne({
+        email: 'test@example.com',
+      });
+      expect(userAfterDelete).toBeNull();
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      const id = '60921a4a6de4f2154b7842e3';
+      jest.spyOn(userModel, 'findByIdAndDelete').mockResolvedValueOnce(null);
+
+      await expect(userService.deleteUser(id)).rejects.toThrowError(
+        new NotFoundException('User not found'),
+      );
+    });
+
+    it('should throw BadRequestException if ID is not valid', async () => {
+      const id = 'invalid-id';
+
+      await expect(userService.deleteUser(id)).rejects.toThrowError(
+        new BadRequestException('Invalid user ID'),
+      );
     });
   });
 });

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../models/User';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { compare, hash } from 'bcrypt';
 import { UserResponseInterface } from '../types/user.response.interface';
 import { AuthService } from './auth.service';
@@ -182,6 +182,13 @@ export class UserService {
   }
 
   async deleteUser(id: string): Promise<void> {
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('Invalid user ID');
+    }
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     await this.userModel.findByIdAndDelete(id);
   }
 }
