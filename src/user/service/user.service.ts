@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -77,6 +78,23 @@ export class UserService {
     const getUser = user.toObject();
     delete getUser.password;
     return getUser;
+  }
+
+  async addOrRemoveFriend(friendId: string, currentUser: User): Promise<User> {
+    if (currentUser._id.toString() === friendId) {
+      throw new BadRequestException('Cannot add yourself as a friend');
+    }
+    const user = await this.userModel.findById(friendId);
+    if (!user) {
+      throw new NotFoundException(`User with id ${friendId} not found`);
+    }
+    const index = user.friends.indexOf(currentUser._id);
+    if (index >= 0) {
+      user.friends.splice(index, 1);
+    } else {
+      user.friends.push(currentUser._id);
+    }
+    return user.save();
   }
 
   async buildUserResponse(user: User): Promise<UserResponseInterface> {
