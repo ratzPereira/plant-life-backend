@@ -9,8 +9,20 @@ import { Model } from 'mongoose';
 import { CreatePlantTypeDto } from '../dto/create.plant.type.dto';
 import { PlantType, PlantTypeDocument } from '../model/PlantType';
 import { CreatePlantSpeciesDto } from '../dto/create.plant.species.dto';
+import { IsNotEmpty } from 'class-validator';
 
-class CreatePlantDto {}
+class CreatePlantDto {
+  @IsNotEmpty()
+  name: string;
+  @IsNotEmpty()
+  species: string;
+  @IsNotEmpty()
+  age: number;
+  @IsNotEmpty()
+  location: string;
+  @IsNotEmpty()
+  plantType: string;
+}
 
 @Injectable()
 export class PlantService {
