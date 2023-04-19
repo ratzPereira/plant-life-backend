@@ -22,6 +22,7 @@ class CreatePlantDto {
   location: string;
   @IsNotEmpty()
   plantType: string;
+  userId: string;
 }
 
 @Injectable()
